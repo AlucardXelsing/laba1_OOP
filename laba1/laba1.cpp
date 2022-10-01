@@ -10,8 +10,8 @@ struct Date {
 
 struct Node {
     DATA info;
-    NODE* next;
-    NODE* prev;
+    Node* next;
+    Node* prev;
 }typedef NODE;
 
 
@@ -21,17 +21,19 @@ public:
 	BasePay();
 	~BasePay();
     void AddCar();
+    void DeleteCar();
+    void PrintAllCar();
 private:
     DATA ReadData();
+    bool ExistNumber(std::string number);
 private:
     NODE* first;
 public:
-    static CustomMenu menu;
+    CustomMenu menu=CustomMenu(1500,850);
 };
 
 BasePay::BasePay()
 {
-    CustomMenu menu(1500, 850);
     menu.AddPointMenu("Создать(Добавить)");
     menu.AddPointMenu("Показать данные");
     menu.AddPointMenu("Сумма всех штрафов");
@@ -44,6 +46,51 @@ BasePay::~BasePay()
     delete first;
 }
 
+void BasePay::PrintAllCar() {
+    lineInTable head[3];
+    char textPay[26];
+    NODE* temp=first;
+    head[0].length = 20;
+    head[1].length = 20;
+    head[2].length = -1;
+    head[0].name = "Номер";
+    head[1].name = "Штраф, р";
+    menu.Drawtable(head);
+    if (!first)
+        return;
+    do
+    {
+        head[0].name.clear();
+        head[1].name.clear();
+        sprintf(textPay, "%14.2f", temp->info.pay);
+        head[0].name = temp->info.number;
+        head[1].name = textPay;
+        menu.Drawtable(head, 0, 0);
+        temp = temp->next;
+    } while (temp!=first);
+}
+
+bool BasePay::ExistNumber(std::string number) {
+    bool flagFirst = true;
+    bool findNumber=true;
+    NODE* temp = first;
+    if (!first)
+        return true;
+    for (; temp != first || flagFirst; temp = temp->next) {
+        if (flagFirst)
+            flagFirst = false;
+        findNumber = true;
+        for (int i = 0; i < number.length(); i++) {
+            if (number[i] != temp->info.number[i]) {
+                findNumber = false;
+                break;
+            }
+        }
+        if (findNumber)
+            return true;
+    }
+    return false;
+}
 
 void BasePay::AddCar() {
     DATA info = ReadData();
@@ -82,10 +129,62 @@ void BasePay::AddCar() {
     }
 }
 
+void BasePay::DeleteCar() {
+    std::string number;
+    NODE* temp=first;
+    std::string text;
+    bool firstFlag = true;
+    bool findNumber = false;
+    do
+    {
+        menu.ClearWorkSpace();
+        menu.SetCursorPositionByY(0);
+        std::cout << "Ведите номер автомобиля ________(для выхода ведите exit)";
+        menu.SetCursorPositionByX(24);
+        std::cin >> number;
+        if (number == "exit")
+            return;
+        if (number.length() > 9) {
+            menu.ShowInfoWindow("Веденый номер больше 9");
+            continue;
+        }
+        if (number.length() < 8) {
+            menu.ShowInfoWindow("Веденый номер меньше 8");
+            continue;
+        }
+        if (ExistNumber(number)) {
+            menu.ShowInfoWindow("Такой номер уже существует");
+            continue;
+        }
+    } while (number.length() > 9 || number.length() < 8 || ExistNumber(number));
+    for (; temp != first || firstFlag; temp = temp->next) {
+        if (firstFlag)
+            firstFlag = false;
+        findNumber = true;
+        for (int i = 0; i < number.length(); i++) {
+            if (number[i] != temp->info.number[i]) {
+                findNumber = false;
+                break;
+            }
+        }
+        if (findNumber)
+            break;
+    }
+    text = "Хотите удалить автомобиль с номером ";
+    text += temp->info.number;
+    text += " с штрафом ";
+    text += temp->info.pay;
+    if (menu.YesOrNoWindow(text))
+        return;
+    temp->prev->next = temp->next;
+    temp->next->prev = temp->prev;
+    delete temp;
+}
+
 DATA BasePay::ReadData() {
     std::string number;
     DATA info;
-    float pay;
+    float pay=0;
     do
     {
         menu.ClearWorkSpace();
@@ -93,10 +192,18 @@ DATA BasePay::ReadData() {
         std::cout << "Ведите номер автомобиля ________";
         menu.SetCursorPositionByX(24);
         std::cin >> number;
-        if (number.length() > 9)
+        if (number.length() > 9) {
             menu.ShowInfoWindow("Веденый номер больше 9");
-        if (number.length() < 8)
+            continue;
+        }
+        if (number.length() < 8) {
             menu.ShowInfoWindow("Веденый номер меньше 8");
+            continue;
+        }
+        if (ExistNumber(number)) {
+            menu.ShowInfoWindow("Такой номер уже существует");
+            continue;
+        }
     } while (number.length() > 9 || number.length() < 8);
     for (int i = 0; i < number.length(); i++)
         info.number[i] = number[i];
@@ -115,7 +222,26 @@ DATA BasePay::ReadData() {
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    BasePay pays;
+    int pointMenu = 2;
+    while ( pointMenu != -1) {
+        pointMenu = pays.menu.MoveInMenu();
+        pays.menu.ClearWorkSpace();
+        switch (pointMenu)
+        {
+        case 1:
+            pays.AddCar();
+            break;
+        case 2:
+            pays.PrintAllCar();
+            break;
+        case 4:
+            pays.DeleteCar();
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
