@@ -48,7 +48,7 @@ BasePay::~BasePay()
 
 void BasePay::PrintAllCar() {
     lineInTable head[3];
-    char textPay[26];
+    char textPay[20];
     NODE* temp=first;
     head[0].length = 20;
     head[1].length = 20;
@@ -75,7 +75,7 @@ bool BasePay::ExistNumber(std::string number) {
     bool findNumber=true;
     NODE* temp = first;
     if (!first)
-        return true;
+        return false;
     for (; temp != first || flagFirst; temp = temp->next) {
         if (flagFirst)
             flagFirst = false;
@@ -139,7 +139,7 @@ void BasePay::DeleteCar() {
     {
         menu.ClearWorkSpace();
         menu.SetCursorPositionByY(0);
-        std::cout << "Ведите номер автомобиля ________(для выхода ведите exit)";
+        std::cout << "Ведите номер автомобиля _________(для выхода ведите exit)";
         menu.SetCursorPositionByX(24);
         std::cin >> number;
         if (number == "exit")
@@ -189,7 +189,7 @@ DATA BasePay::ReadData() {
     {
         menu.ClearWorkSpace();
         menu.SetCursorPositionByY(0);
-        std::cout << "Ведите номер автомобиля ________";
+        std::cout << "Ведите номер автомобиля _________";
         menu.SetCursorPositionByX(24);
         std::cin >> number;
         if (number.length() > 9) {
@@ -213,6 +213,7 @@ DATA BasePay::ReadData() {
         std::cout << "Ведите номер автомобиля " << number;
         menu.SetCursorPositionByY(1);
         std::cout << "Ведите сумму штрафа: ";
+        std::cin >> pay;
         if (pay < 0)
             menu.ShowInfoWindow("Штраф не может быть отрицательным");
     } while (pay < 0);
