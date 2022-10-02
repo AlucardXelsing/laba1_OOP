@@ -4,7 +4,7 @@
 #include <iostream>
 
 struct Date {
-    char number[9];
+    char number[10];
     float pay;
 }typedef DATA;
 
@@ -23,6 +23,7 @@ public:
     void AddCar();
     void DeleteCar();
     void PrintAllCar();
+    void SummOfPay();
 private:
     DATA ReadData();
     bool ExistNumber(std::string number);
@@ -46,12 +47,30 @@ BasePay::~BasePay()
     delete first;
 }
 
+void BasePay::SummOfPay() {
+    bool flagFirst = true;
+    float summ=0;
+    char text[39];
+    NODE* temp=first;
+    if (!first) {
+        menu.ShowInfoWindow("Данных нет");
+        return;
+    }
+    for (; temp != first || flagFirst; temp = temp->next) {
+        if (flagFirst)
+            flagFirst = false;
+        summ += temp->info.pay;
+    }
+    sprintf(text, "Сумма всех штафов %14.2f", summ);
+    menu.ShowInfoWindow(text);
+}
+
 void BasePay::PrintAllCar() {
     lineInTable head[3];
     char textPay[20];
     NODE* temp=first;
     head[0].length = 20;
-    head[1].length = 20;
+    head[1].length = 30;
     head[2].length = -1;
     head[0].name = "Номер";
     head[1].name = "Штраф, р";
@@ -62,7 +81,7 @@ void BasePay::PrintAllCar() {
     {
         head[0].name.clear();
         head[1].name.clear();
-        sprintf(textPay, "%14.2f", temp->info.pay);
+        sprintf(textPay, "%8.2f", temp->info.pay);
         head[0].name = temp->info.number;
         head[1].name = textPay;
         menu.Drawtable(head, 0, 0);
@@ -97,11 +116,8 @@ void BasePay::AddCar() {
     NODE* temp;
     NODE* end;
     bool flagFirst = true;
-    std::string text;
-    text = "Хотите сохранить машину с номером ";
-    text += info.number;
-    text += " с штрафом ";
-    text += info.pay;
+    char text[76]={0};
+    sprintf(text, "Хотите сохранить автомобиль с номером %s с штрафом %14.2f", info.number, info.pay);
     menu.YesOrNoWindow(text);
     if (!first) {
         first = new NODE;
@@ -132,7 +148,7 @@ void BasePay::AddCar() {
 void BasePay::DeleteCar() {
     std::string number;
     NODE* temp=first;
-    std::string text;
+    char text[74];
     bool firstFlag = true;
     bool findNumber = false;
     do
@@ -152,11 +168,11 @@ void BasePay::DeleteCar() {
             menu.ShowInfoWindow("Веденый номер меньше 8");
             continue;
         }
-        if (ExistNumber(number)) {
-            menu.ShowInfoWindow("Такой номер уже существует");
+        if (!ExistNumber(number)) {
+            menu.ShowInfoWindow("Такого номера не существует");
             continue;
         }
-    } while (number.length() > 9 || number.length() < 8 || ExistNumber(number));
+    } while (number.length() > 9 || number.length() < 8 || !ExistNumber(number));
     for (; temp != first || firstFlag; temp = temp->next) {
         if (firstFlag)
             firstFlag = false;
@@ -170,12 +186,14 @@ void BasePay::DeleteCar() {
         if (findNumber)
             break;
     }
-    text = "Хотите удалить автомобиль с номером ";
-    text += temp->info.number;
-    text += " с штрафом ";
-    text += temp->info.pay;
-    if (menu.YesOrNoWindow(text))
+    sprintf(text, "Хотите удалить автомобиль с номером %s с штрафом %14.2f", temp->info.number, temp->info.pay);
+    if (!menu.YesOrNoWindow(text))
         return;
+    if (first->next = first) {
+        delete first;
+        first = NULL;
+        return;
+    }
     temp->prev->next = temp->next;
     temp->next->prev = temp->prev;
     delete temp;
@@ -185,6 +203,8 @@ DATA BasePay::ReadData() {
     std::string number;
     DATA info;
     float pay=0;
+    int i;
+    number.clear();
     do
     {
         menu.ClearWorkSpace();
@@ -205,8 +225,9 @@ DATA BasePay::ReadData() {
             continue;
         }
     } while (number.length() > 9 || number.length() < 8);
-    for (int i = 0; i < number.length(); i++)
+    for (i = 0; i < number.length(); i++)
         info.number[i] = number[i];
+    info.number[i] = 0;
     do
     {
         menu.SetCursorPositionByY(0);
@@ -235,6 +256,9 @@ int main()
             break;
         case 2:
             pays.PrintAllCar();
+            break;
+        case 3:
+            pays.SummOfPay();
             break;
         case 4:
             pays.DeleteCar();
