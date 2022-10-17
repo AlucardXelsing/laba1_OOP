@@ -70,7 +70,7 @@ void BasePay::PrintAllCar() {
     char textPay[20];
     NODE* temp=first;
     head[0].length = 20;
-    head[1].length = 30;
+    head[1].length = 31;
     head[2].length = -1;
     head[0].name = "Номер";
     head[1].name = "Штраф, р";
@@ -130,7 +130,7 @@ void BasePay::AddCar() {
         temp = new NODE;
         temp->next = first;
         temp->info = info;
-        if (first->next = first) {
+        if (first->next == first) {
             first->next = temp;
             first->prev = temp;
             return;
@@ -189,7 +189,7 @@ void BasePay::DeleteCar() {
     sprintf(text, "Хотите удалить автомобиль с номером %s с штрафом %14.2f", temp->info.number, temp->info.pay);
     if (!menu.YesOrNoWindow(text))
         return;
-    if (first->next = first) {
+    if (first->next == first) {
         delete first;
         first = NULL;
         return;
